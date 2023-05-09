@@ -1,0 +1,1 @@
+export type BotPermissionTypes = 'OWNER' | 'ALL'
