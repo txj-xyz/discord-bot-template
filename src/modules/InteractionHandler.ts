@@ -29,10 +29,10 @@ export default class InteractionHandler {
         for (let index = 0; index < files.length; index++) {
             const f = files[index];
             foundCommands++;
-            const { default: Interaction } = await import(f) as { default: new (client: Bot) => BotInteraction };
-            const Command = new Interaction(this.client);
-            this.commands.set(Command.cmdName, Command);
-            !this.client.production ? this.client.logger.warn({ message: `Command '${Command.cmdName}' loaded`, handler: this.constructor.name }) : void 0;
+            const { default: BotCommand } = await import(f) as { default: new (client: Bot) => BotInteraction };
+            const cmd = new BotCommand(this.client);
+            this.commands.set(cmd.name, cmd);
+            !this.client.production ? this.client.logger.warn({ message: `Command '${cmd.name}' loaded`, handler: this.constructor.name }) : void 0;
         }
         this.client.logger.info({ handler: this.constructor.name, message: `Loaded ${this.commands.size}/${foundCommands} interaction client command(s)` });
         this.built = true;

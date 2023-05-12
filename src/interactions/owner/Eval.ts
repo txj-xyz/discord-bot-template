@@ -6,10 +6,10 @@ import Bot from '../../Bot';
 export default class Eval extends BotInteraction {
     constructor(client: Bot) {
         super(client);
-        this.cmdName = "eval";
+        this.name = "eval";
         this.description = "Evaluate code in the scope of Eval#Class!";
         this.permissions = 'OWNER';
-        this.slashData.setName(this.cmdName)
+        this.slashData.setName(this.name)
             .setDescription(this.description)
             .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels | PermissionFlagsBits.ManageMessages)
             .addStringOption((option: SlashCommandStringOption) => option.setName('code').setDescription('Evaluate Code from interaction scope.').setRequired(true))

@@ -5,10 +5,10 @@ import Bot from '../../Bot';
 export default class Invite extends BotInteraction {
     constructor(client: Bot) {
         super(client);
-        this.cmdName = "invite";
+        this.name = "invite";
         this.description = "Invite the bot to your server!";
         this.global = true;
-        this.slashData.setName(this.cmdName).setDescription(this.description);
+        this.slashData.setName(this.name).setDescription(this.description);
     }
 
     async run(interaction: ChatInputCommandInteraction): Promise<void> {

@@ -15,6 +15,5 @@ export default class Ready extends BotEvent {
 
     async run(): Promise<void> {
         console.log('Bot is ready', this.client.user?.username as string);
-        return new Promise(_ => void _)
     }
 }
