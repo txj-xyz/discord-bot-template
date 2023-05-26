@@ -75,7 +75,7 @@ export default class Bot extends Client {
         this.color = 0x7e686c;
         this.util = new UtilityHandler(this);
         this.quitting = false;
-        this.location = process.cwd();
+        this.location = process.cwd().replace(/\\/gim, "/");
         this.interactions = new InteractionHandler(this);
         this.events = new EventHandler(this);
         process.on('unhandledRejection', (err: unknown) => { return this.logger.error({ message: `UnhandledRejection from Process`, error: (err as Error).stack }) });
