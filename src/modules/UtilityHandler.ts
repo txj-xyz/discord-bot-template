@@ -1,5 +1,5 @@
 import * as config from '../../config/config.json';
-import { EmbedBuilder, ChatInputCommandInteraction, Message, SlashCommandBuilder, GuildMember, Collection, Interaction, ApplicationCommand, ApplicationCommandData, codeBlock } from 'discord.js';
+import { EmbedBuilder, Message, SlashCommandBuilder, GuildMember, Collection, Interaction, ApplicationCommand, ApplicationCommandData, codeBlock } from 'discord.js';
 import Bot from '../Bot';
 import { readFileSync, readdirSync } from 'fs';
 import { BotInteraction } from '../abstract/BotInteraction';
@@ -11,16 +11,6 @@ export default interface UtilityHandler {
     loadingEmbed: EmbedBuilder;
     loadingText: string;
     slashCommandBuilder(message: Message<true>): Promise<void | Message<true>>;
-    checkGuidesForums(message: Message<true>): Promise<Message<true> | undefined>;
-    jagexPingCheck(message: Message<true>): Promise<void>;
-    deleteMessage(interaction: ChatInputCommandInteraction, id: string): Promise<Message<true>> | undefined;
-    removeArrayIndex(array: Array<unknown>, indexID: number): unknown[];
-    checkURL(string: string): boolean;
-    trim(string: string, max: number): string;
-    convertMS(ms: number | null): string;
-    convertBytes(bytes: number): string;
-    sleep(ms: number): Promise<unknown>;
-    splitMessage(str: string, size: number): string[]
 }
 export default class UtilityHandler {
     constructor(client: Bot) {
@@ -40,59 +30,6 @@ export default class UtilityHandler {
         } catch {
             return false;
         }
-    }
-
-
-    public async sleep(ms: number): Promise<unknown> {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    static splitMessagebyChar(text: string, { maxLength = 2000, char = '\n', prepend = '', append = '' } = {}): string[] {
-        if (text.length <= maxLength) return [text];
-        const splitText = text.split(char);
-        if (splitText.some(chunk => chunk.length > maxLength)) throw new RangeError('SPLIT_MAX_LEN');
-        const messages = [];
-        let msg = '';
-        for (const chunk of splitText) {
-            if (msg && (msg + char + chunk + append).length > maxLength) {
-                messages.push(msg + append);
-                msg = prepend;
-            }
-            msg += (msg && msg !== prepend ? char : '') + chunk;
-        }
-        return messages.concat(msg !== prepend ? msg + append : []);
-    }
-
-    public splitString(str: string, limit: number): string[] {
-        const result = [];
-        if (str.length <= limit) {
-            result.push(str);
-            return result;
-        }
-        let startIndex = 0;
-        let endIndex = limit;
-        while (endIndex < str.length) {
-            const lastSpaceIndex = str.lastIndexOf(' ', endIndex);
-            if (lastSpaceIndex > startIndex) {
-                result.push(str.substring(startIndex, lastSpaceIndex));
-                startIndex = lastSpaceIndex + 1;
-            } else {
-                result.push(str.substring(startIndex, endIndex));
-                startIndex = endIndex;
-            }
-            endIndex = startIndex + limit;
-        }
-        result.push(str.substring(startIndex));
-        return result.filter((s) => s.length > 0);
-    }
-
-    public splitMessage(str: string, size: number): string[] {
-        const numChunks = Math.ceil(str.length / size);
-        const chunks = new Array<string>(numChunks);
-        for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
-            chunks[i] = str.slice(o, size);
-        }
-        return chunks;
     }
 
     public async slashCommandBuilder(message: Message<true>): Promise<void | Message<true>> {
@@ -230,7 +167,6 @@ export default class UtilityHandler {
                     .join('\n')}\n\`\`\``,
             })
             .catch(() => void 0);
-        
     }
     
     public checkPermissions(type: 'name' | 'id', member: GuildMember | Interaction, role: string[]): boolean {
@@ -272,50 +208,5 @@ export default class UtilityHandler {
             }
         }
         return data;
-    }
-
-    public removeArrayIndex(array: Array<unknown>, indexID: number): unknown[] {
-        return array.filter((_: unknown, index) => index != indexID - 1);
-    }
-
-    public checkURL(string: string): boolean {
-        try {
-            new URL(string);
-            return true;
-        } catch (error) {
-            return false;
-        }
-    }
-
-    public trim(string: string, max: number): string {
-        return string.length > max ? string.slice(0, max) : string;
-    }
-
-    public convertMS(ms: number | null): string {
-        if (!ms) return 'n/a';
-        const seconds = (ms / 1000).toFixed(1),
-            minutes = (ms / (1000 * 60)).toFixed(1),
-            hours = (ms / (1000 * 60 * 60)).toFixed(1),
-            days = (ms / (1000 * 60 * 60 * 24)).toFixed(1);
-        if (Number(seconds) < 60) return seconds + ' Sec';
-        else if (Number(minutes) < 60) return minutes + ' Min';
-        else if (Number(hours) < 24) return hours + ' Hrs';
-        else return days + ' Days';
-    }
-
-    public convertBytes(bytes: number): string {
-        const MB = Math.floor((bytes / 1024 / 1024) % 1000);
-        const GB = Math.floor(bytes / 1024 / 1024 / 1024);
-        if (MB >= 1000) return `${GB.toFixed(1)} GB`;
-        else return `${Math.round(MB)} MB`;
-    }
-
-    public convertUserIDArrayToStringOfMentions(userIDs: string[] | undefined): string {
-        let result = "";
-        if(!userIDs) {
-            return result;
-        }
-        userIDs.forEach(userID => result += `<@${userID}> `);
-        return result;
     }
 }

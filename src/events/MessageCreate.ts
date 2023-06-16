@@ -17,8 +17,7 @@ export default class MessageCreate extends BotEvent {
   async run([message]: [Message]): Promise<void | Message<true>> {
     if (message.author.bot) return;
     if (!message.inGuild()) return;
-    const [cmd] = message.content.split(" ");
-
+    
     if (
       message.mentions.users.first()?.id == this.client.user?.id &&
       this.client.util.config.owners.includes(message.author.id) &&
