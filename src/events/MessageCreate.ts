@@ -1,5 +1,6 @@
 import { Message } from "discord.js";
 import { BotEvent } from "../abstract/BotEvent";
+import { slashCommandModule } from "../modules/SlashCommandBuilder";
 
 export default class MessageCreate extends BotEvent {
   get name(): string {
@@ -23,7 +24,7 @@ export default class MessageCreate extends BotEvent {
       this.client.util.config.owners.includes(message.author.id) &&
       message.content.includes(`build`)
     ) {
-      return await this.client.util.slashCommandBuilder(message);
+      return await slashCommandModule(this.client, message);
     }
   }
 }
