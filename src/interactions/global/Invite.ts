@@ -5,14 +5,14 @@ import Bot from '../../Bot';
 export default class Invite extends BotInteraction {
     constructor(client: Bot) {
         super(client);
-        this.name = "invite";
-        this.description = "Invite the bot to your server!";
+        this.cmdName = "invite";
         this.global = true;
-        this.slashData.setName(this.name).setDescription(this.description);
+        this.description = "Invite the bot to your server!";
+        this.slashData.setName(this.cmdName).setDescription(this.description);
     }
 
     async run(interaction: ChatInputCommandInteraction): Promise<void> {
-        await interaction.deferReply({ ephemeral: true });
-        await interaction.editReply(`Click the \`Add to Server\` button in my profile or click the link below.\n${this.client.util.config.inviteUrl}`);
+        await interaction.deferReply({ ephemeral: false });
+        await interaction.editReply(`Click the \`Add to Server\` button in my profile by clicking on my name or click the link below to invite me!.\nhttps://discord.com/api/oauth2/authorize?client_id=1015008038823931994&permissions=414464727104&scope=bot`);
     }
 }

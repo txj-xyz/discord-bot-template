@@ -6,7 +6,7 @@ export interface BotEvent extends EventEmitter {
     new(client: Bot): this
     uid: string;
     client: Bot;
-    get name(): string;
+    get cmdName(): string;
     get fireOnce(): boolean;
     get enabled(): boolean;
     exec(...args: ClientEvents[] | unknown[]): void | unknown
