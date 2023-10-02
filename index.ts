@@ -29,7 +29,7 @@ const clientOptions = {
 
 if (process.env.NO_SHARDING) {
     const bot = new Bot(clientOptions);
-    void bot.login().catch(void 0)
+    bot.login().catch(void 0)
 } else {
     const sharderOptions: IndomitableOptions = {
         clientOptions,
@@ -39,7 +39,8 @@ if (process.env.NO_SHARDING) {
     };
 
     const manager = new Indomitable(sharderOptions)
-        .on('error', e => console.error('[ERROR MAIN] [ClusterHandler]', e))
-        .on('debug', (message) => { console.log(`[ClusterHandler] [Main] ${message}`) });
+        .on('error', (e: unknown) => console.error({ message: '[ClusterHandler]', error: e }))
+        .on('debug', (msg: unknown) => { console.log({ message: `[ClusterHandler]`, debug: msg }); });
+
     void manager.spawn()
 }

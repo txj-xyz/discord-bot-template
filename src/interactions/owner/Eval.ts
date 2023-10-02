@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandStringOption, EmbedBuilder, SlashCommandBooleanOption, PermissionFlagsBits } from 'discord.js';
+import { ChatInputCommandInteraction, SlashCommandStringOption, EmbedBuilder, SlashCommandBooleanOption } from 'discord.js';
 import { inspect } from 'util';
 import { BotInteraction } from '../../abstract/BotInteraction';
 import Bot from '../../Bot';
@@ -6,12 +6,11 @@ import Bot from '../../Bot';
 export default class Eval extends BotInteraction {
     constructor(client: Bot) {
         super(client);
-        this.name = "eval";
+        this.cmdName = "eval";
         this.description = "Evaluate code in the scope of Eval#Class!";
         this.permissions = 'OWNER';
-        this.slashData.setName(this.name)
+        this.slashData.setName(this.cmdName)
             .setDescription(this.description)
-            .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels | PermissionFlagsBits.ManageMessages)
             .addStringOption((option: SlashCommandStringOption) => option.setName('code').setDescription('Evaluate Code from interaction scope.').setRequired(true))
             .addBooleanOption((option: SlashCommandBooleanOption) => option.setName('ephemeral').setDescription('Respond privately or in the channel.'));
     }
@@ -34,7 +33,7 @@ export default class Eval extends BotInteraction {
         const embed = new EmbedBuilder()
             .setColor(this.client.color)
             .setTitle('Eval Results')
-            .setDescription(`📥Input:\n\`\`\`${code}\`\`\`\n\n\`\`\`js\n${this.trim(res as string, 1900)}\`\`\``)
+            .setDescription(`📥Input:\n\`\`\`${code}\`\`\`\n\n\`\`\`js\n${this.trim(res as string, 1900)}\`\`\``) // (TODO) yikes wtf is this
             .setTimestamp()
             .setFooter({ text: this.client.user?.username ?? 'dejj', iconURL: this.client.user?.displayAvatarURL() });
         await interaction.editReply({ embeds: [embed] });

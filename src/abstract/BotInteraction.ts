@@ -7,7 +7,7 @@ export interface BotInteraction {
     uid: string;
     client: Bot;
     enabled: boolean;
-    name: string;
+    cmdName: string;
     description: string;
     slashData: SlashCommandBuilder;
     permissions: BotPermissionTypes;
@@ -21,7 +21,7 @@ export interface BotInteraction {
 export abstract class BotInteraction implements BotInteraction {
     public client: Bot;
     public enabled: boolean;
-    public name: string;
+    static cmdName: string;
     public description: string;
     public slashData: SlashCommandBuilder;
     public permissions: BotPermissionTypes;
@@ -31,7 +31,7 @@ export abstract class BotInteraction implements BotInteraction {
     constructor(client: Bot) {
         this.client = client;
         this.enabled = true;
-        this.name = "";
+        this.cmdName = "";
         this.description = "";
         this.slashData = new SlashCommandBuilder();
         this.permissions = 'ALL';

@@ -1,4 +1,6 @@
-config/*.json
+config/config.json
+config/ban_list.json
+config/feature_toggle.json
+config/keywords.json
 node_modules/
 .env
-logs/*.log

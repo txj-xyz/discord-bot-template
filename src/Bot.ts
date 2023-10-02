@@ -3,8 +3,9 @@ import { Client, ClientOptions, Collection, WebhookClient } from 'discord.js';
 import InteractionHandler from './modules/InteractionHandler';
 import EventHandler from './modules/EventHandler';
 import UtilityHandler from './modules/UtilityHandler';
-import BotLogger from './modules/LoggingHandler';
-import { webhookUrl } from '../config/config.json'
+import BlacklistHandler from './handlers/BlacklistHandler';
+// import { webhookUrl } from '../config/config.json'
+import { ConfigMap } from './modules/ConfigMap';
 
 export default interface Bot extends Client {
     
@@ -47,11 +48,10 @@ export default interface Bot extends Client {
     events: EventHandler;
 
     /**
-     * Non-blocking client logger
-     * Uses `Winston`
-     * @returns @typeof `Winston.Logger & BotLogger`
+     * Internal bot Blacklist, handles not responding to banned users.
+     * @returns `BanData[]`
      */
-    logger: BotLogger;
+    blacklist: BlacklistHandler;
 
     /**
      * Webhooks is a collection of Webhook clients by name you can use
@@ -60,6 +60,10 @@ export default interface Bot extends Client {
      */
     webhooks: Collection<string, WebhookClient>
 
+    /**
+     * Configuration map live updating to check if a feature is enabled
+     */
+    configmap: ConfigMap
 }
 
 /**
@@ -68,9 +72,8 @@ export default interface Bot extends Client {
 export default class Bot extends Client {
     constructor(options: ClientOptions) {
         super(options);
+        this.configmap = new ConfigMap('./config/feature_toggle.json')
         this.webhooks = new Collection<string, WebhookClient>();
-        this.webhooks.set('discord-logs', new WebhookClient({ url: webhookUrl }));
-        this.logger = new BotLogger(this).c as BotLogger;
         this.production = process.env.DEV_MODE ? false : true;
         this.color = 0x7e686c;
         this.util = new UtilityHandler(this);
@@ -78,7 +81,9 @@ export default class Bot extends Client {
         this.location = process.cwd().replace(/\\/gim, "/");
         this.interactions = new InteractionHandler(this);
         this.events = new EventHandler(this);
-        process.on('unhandledRejection', (err: unknown) => { return this.logger.error({ message: `UnhandledRejection from Process`, error: (err as Error).stack }) });
+        this.blacklist = new BlacklistHandler(this);
+        process.on('unhandledRejection', (err: unknown) => { return console.error({ message: `unhandledRejection from Process`, error: err }) });
+        process.on('uncaughtException', (err: unknown) => { return console.error({ message: `uncaughtException from Process`, error: err }) });
     }
 
     async login(): Promise<string> {

@@ -5,9 +5,9 @@ import Bot from '../../Bot';
 export default class Ping extends BotInteraction {
     constructor(client: Bot) {
         super(client);
-        this.name = "ping";
+        this.cmdName = "ping";
         this.description = "Basic pongy command!";
-        this.slashData.setName(this.name).setDescription(this.description);
+        this.slashData.setName(this.cmdName).setDescription(this.description);
     }
 
     async run(interaction: ChatInputCommandInteraction<'cached'>): Promise<void> {
