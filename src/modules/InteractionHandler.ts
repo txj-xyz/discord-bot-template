@@ -1,4 +1,4 @@
-import { Collection, Interaction, CommandInteraction, InteractionResponse, EmbedBuilder }  from 'discord.js';
+import { Collection, Interaction, CommandInteraction, InteractionResponse, EmbedBuilder } from 'discord.js';
 import Bot from '../Bot';
 import { BotInteraction } from '../abstract/BotInteraction';
 import { glob } from 'glob';
@@ -16,11 +16,15 @@ export default class InteractionHandler {
         this.built = false;
         this.client = client;
         this.client.on('interactionCreate', (interaction: Interaction) => {
-            const { guildId, user: { id: userId }, channelId } = interaction as Interaction<'cached'>;
-            const ban = client.blacklist.checkInteractionAll(interaction, { guildId, userId, channelId: (channelId as string) })
+            const {
+                guildId,
+                user: { id: userId },
+                channelId,
+            } = interaction as Interaction<'cached'>;
+            const ban = client.blacklist.checkInteractionAll(interaction, { guildId, userId, channelId: channelId as string });
             if (ban) return;
             this.exec(interaction) as Promise<void>;
-            return void 0
+            return void 0;
         });
     }
 
@@ -33,7 +37,7 @@ export default class InteractionHandler {
         for (let index = 0; index < files.length; index++) {
             const f = files[index];
             foundCommands++;
-            const { default: Interaction } = await import(f) as { default: new (client: Bot) => BotInteraction };
+            const { default: Interaction } = (await import(f)) as { default: new (client: Bot) => BotInteraction };
             const Command = new Interaction(this.client);
             this.commands.set(Command.cmdName, Command);
             !this.client.production ? console.log({ message: `Command '${Command.cmdName}' loaded`, handler: this.constructor.name }) : void 0;
@@ -43,30 +47,27 @@ export default class InteractionHandler {
         return this.commands;
     }
 
-
     public async denialResponse(interaction: CommandInteraction, command: BotInteraction, permissions_required: string): Promise<InteractionResponse<boolean>> {
-        console.error(
-            {
-                message: `Attempted restricted permissions.`,
-                command: command.cmdName,
-                user: interaction.user.username,
-                handler: this.constructor.name,
-            }
-        );
+        console.error({
+            message: `Attempted restricted permissions.`,
+            command: command.cmdName,
+            user: interaction.user.username,
+            handler: this.constructor.name,
+        });
         const message = await interaction.reply({
             content: `You do not have permissions to run this command, please ask a user with the role **${permissions_required}** or **SERVER STAFFf** to run this command.`,
-            ephemeral: true
+            ephemeral: true,
         });
         return message;
     }
 
     async exec(interaction: Interaction): Promise<unknown> {
-        
         // Ignore non-cached guilds
         if (!interaction.inCachedGuild()) return;
 
         // As of 4/11/23 this is hardcoded to include modal submission checks to pull the command from the client collection and execute the `modal()` method
-        const command: BotInteraction | undefined = interaction.isCommand() || interaction.isAutocomplete() ? this.commands.get(interaction.commandName) : interaction.isModalSubmit() ? this.commands.get(interaction.customId) : undefined;
+        const command: BotInteraction | undefined =
+            interaction.isCommand() || interaction.isAutocomplete() ? this.commands.get(interaction.commandName) : interaction.isModalSubmit() ? this.commands.get(interaction.customId) : undefined;
         if (!command) return interaction.isRepliable() ? await interaction.reply({ content: 'Internal Error Occurred. Command not loaded correctly.', ephemeral: true }) : void !0;
         if (interaction.isCommand() && !command.enabled) return interaction.isRepliable() ? await interaction.reply({ content: `This command is currently disabled.`, ephemeral: true }) : void !0;
 
@@ -101,29 +102,25 @@ export default class InteractionHandler {
                     default:
                         break;
                 }
-                console.log(
-                    {
-                        handler: this.constructor.name,
-                        user: `${interaction.user.username} | ${interaction.user.id}`,
-                        channel: `${interaction.channel?.name ?? 'Internal Error Occurred'} | ${interaction.channelId}`,
-                        message: `Executing Command ${command.cmdName}`,
-                        args: interaction.options.data.map((e) => ({
-                            interaction_name: e.name,
-                            interaction_args: e.options?.map((cmd) => ({
-                                name: cmd.name,
-                                value: cmd.value,
-                            })),
+                console.log({
+                    handler: this.constructor.name,
+                    user: `${interaction.user.username} | ${interaction.user.id}`,
+                    channel: `${interaction.channel?.name ?? 'Internal Error Occurred'} | ${interaction.channelId}`,
+                    message: `Executing Command ${command.cmdName}`,
+                    args: interaction.options.data.map((e) => ({
+                        interaction_name: e.name,
+                        interaction_args: e.options?.map((cmd) => ({
+                            name: cmd.name,
+                            value: cmd.value,
                         })),
-                    }
-                );
+                    })),
+                });
                 interaction.isChatInputCommand() ? await command.run(interaction) : void 0;
-            }
-
-            catch (error) {
+            } catch (error) {
                 if (error instanceof BotError) {
-                    interaction.isChatInputCommand() && await error.showError(interaction)
+                    interaction.isChatInputCommand() && (await error.showError(interaction));
                 } else {
-                    const { stack, message, name } = error as Error
+                    const { stack, message, name } = error as Error;
                     const embed = new EmbedBuilder()
                         .setColor(0xff0000)
                         .setTitle('Error Detected!')
@@ -136,7 +133,7 @@ export default class InteractionHandler {
                         error: stack ?? 'Internal Error Occurred',
                     });
 
-                    interaction.replied || (interaction.deferred && !interaction.replied) ? await interaction.editReply({ content: null, embeds: [embed] }) : console.error(error)
+                    interaction.replied || (interaction.deferred && !interaction.replied) ? await interaction.editReply({ content: null, embeds: [embed] }) : console.error(error);
                 }
             }
         }

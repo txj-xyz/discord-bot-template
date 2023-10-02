@@ -39,8 +39,8 @@ if (process.env.NO_SHARDING) {
     };
 
     const manager = new Indomitable(sharderOptions)
-        .on('error', (e: unknown) => console.error('[ERROR MAIN] [ClusterHandler]', e))
-        .on('debug', (message: unknown) => { console.log(`[ClusterHandler] [Main]`, message); });
+        .on('error', (e: unknown) => console.error({ message: '[ClusterHandler]', error: e }))
+        .on('debug', (msg: unknown) => { console.log({ message: `[ClusterHandler]`, debug: msg }); });
 
     void manager.spawn()
 }

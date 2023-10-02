@@ -1,5 +1,18 @@
 import * as config from '../../config/config.json';
-import { EmbedBuilder, ChatInputCommandInteraction, Message, SlashCommandBuilder, ChannelType, GuildMember, Collection, ThreadChannel, Interaction, ApplicationCommand, ApplicationCommandData, codeBlock } from 'discord.js';
+import {
+    EmbedBuilder,
+    ChatInputCommandInteraction,
+    Message,
+    SlashCommandBuilder,
+    ChannelType,
+    GuildMember,
+    Collection,
+    ThreadChannel,
+    Interaction,
+    ApplicationCommand,
+    ApplicationCommandData,
+    codeBlock,
+} from 'discord.js';
 import Bot from '../Bot';
 import { readFileSync, readdirSync } from 'fs';
 import { BotInteraction } from '../abstract/BotInteraction';
@@ -24,7 +37,7 @@ export default interface UtilityHandler {
     convertMS(ms: number | null): string;
     convertBytes(bytes: number): string;
     sleep(ms: number): Promise<unknown>;
-    splitMessage(str: string, size: number): string[]
+    splitMessage(str: string, size: number): string[];
 }
 export default class UtilityHandler {
     constructor(client: Bot) {
@@ -34,13 +47,13 @@ export default class UtilityHandler {
         this.loadingEmbed = new EmbedBuilder().setAuthor({ name: '<a:Typing:598682375303593985> **Loading...**' });
         this.loadingText = '<a:Typing:598682375303593985> **Loading...**';
         this.tagManager = new TagHandler(client);
-        this.tempvcmanager = new TempChannelManager(client)
+        this.tempvcmanager = new TempChannelManager(client);
     }
 
     public reloadConfig(): boolean {
         try {
-            const __config = readFileSync('../../config/config.json', 'utf-8')
-            const __convert = JSON.parse(__config) as typeof config
+            const __config = readFileSync('../../config/config.json', 'utf-8');
+            const __convert = JSON.parse(__config) as typeof config;
             this.config = __convert;
             return true;
         } catch {
@@ -48,15 +61,14 @@ export default class UtilityHandler {
         }
     }
 
-
     public async sleep(ms: number): Promise<unknown> {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
     static splitMessagebyChar(text: string, { maxLength = 2000, char = '\n', prepend = '', append = '' } = {}): string[] {
         if (text.length <= maxLength) return [text];
         const splitText = text.split(char);
-        if (splitText.some(chunk => chunk.length > maxLength)) throw new RangeError('SPLIT_MAX_LEN');
+        if (splitText.some((chunk) => chunk.length > maxLength)) throw new RangeError('SPLIT_MAX_LEN');
         const messages = [];
         let msg = '';
         for (const chunk of splitText) {
@@ -103,7 +115,7 @@ export default class UtilityHandler {
 
     public async slashCommandBuilder(message: Message<true>): Promise<void | Message<true>> {
         const [cmd, ...args] = message.content.split(' ');
-        console.log(cmd,args)
+        console.log(cmd, args);
         if (message.content.match(/help/gi)) {
             const buildUsage = [
                 '`build` - Build Server Commands',
@@ -183,37 +195,36 @@ export default class UtilityHandler {
         if (message.content.match(/deploy/gi)) {
             const data = await this.buildCommands('guild', args[2]);
             if (data.length === 0) return message.reply('Failed to load commands');
-            const dataReturned = data.map(c => `${c.default_member_permissions ? '-' : '+'} ${c.name} - '${c.description}'`).join('\n');
+            const dataReturned = data.map((c) => `${c.default_member_permissions ? '-' : '+'} ${c.name} - '${c.description}'`).join('\n');
             try {
-                await message.guild.commands.set(data)
-                return await message.reply({ content: `Deploying (**${data.length.toLocaleString()}**) slash commands\n${codeBlock('diff', dataReturned)}` })
+                await message.guild.commands.set(data);
+                return await message.reply({ content: `Deploying (**${data.length.toLocaleString()}**) slash commands\n${codeBlock('diff', dataReturned)}` });
             } catch (error) {
-                return await message.reply({ content: `There was an error deploying.` })
+                return await message.reply({ content: `There was an error deploying.` });
             }
         }
-
 
         // this will delete all other commands and reload only the single one provided (TODO)
         if (message.content.match(/reload/gi)) {
             // guild commands
             const data = await this.buildCommands('guild', args[2]);
-            if (data.length === 0) return message.reply('Failed to load commands'); 
+            if (data.length === 0) return message.reply('Failed to load commands');
             const allCommands: Collection<string, ApplicationCommand> = await message.guild.commands.fetch();
-            const allGlobalCommands = await this.client.application?.commands.fetch() as Collection<string, ApplicationCommand>;
-            const commandToEdit = allCommands.filter(c => c.name === args[2]).first() ?? null;
-            const globalCommandToEdit = allCommands.size === 0 ? allGlobalCommands.filter(c => c.name === args[2]).first() ?? null : null;
-            if(!commandToEdit && !globalCommandToEdit) return await message.reply(`The command **${args[2]}** was not found, please deploy your commands first.`)
+            const allGlobalCommands = (await this.client.application?.commands.fetch()) as Collection<string, ApplicationCommand>;
+            const commandToEdit = allCommands.filter((c) => c.name === args[2]).first() ?? null;
+            const globalCommandToEdit = allCommands.size === 0 ? allGlobalCommands.filter((c) => c.name === args[2]).first() ?? null : null;
+            if (!commandToEdit && !globalCommandToEdit) return await message.reply(`The command **${args[2]}** was not found, please deploy your commands first.`);
             const editData = data[0].toJSON() as ApplicationCommandData;
             try {
                 globalCommandToEdit ? await globalCommandToEdit.edit(editData) : void 0;
                 commandToEdit ? await commandToEdit.edit(editData) : void 0;
             } catch (error) {
-                return message.reply({ content: `There was an error re-building the command (**${args[2]}**)` })
+                return message.reply({ content: `There was an error re-building the command (**${args[2]}**)` });
             }
 
             return message
                 .reply({
-                    content: `Reloading (**${data.length.toLocaleString()}**) (**${globalCommandToEdit ? 'GLOBAL': commandToEdit ? 'GUILD' : 'GLOBAL'}**) slash commands\n\`\`\`diff\n${data
+                    content: `Reloading (**${data.length.toLocaleString()}**) (**${globalCommandToEdit ? 'GLOBAL' : commandToEdit ? 'GUILD' : 'GLOBAL'}**) slash commands\n\`\`\`diff\n${data
                         .map((command) => `${command.default_member_permissions === '0' ? '-' : '+'} ${command.name} - '${command.description}'`)
                         .join('\n')}\n\`\`\``,
                 })
@@ -238,43 +249,42 @@ export default class UtilityHandler {
                     .join('\n')}\n\`\`\``,
             })
             .catch(() => void 0);
-        
     }
-    
+
     public checkPermissions(type: 'name' | 'id', member: GuildMember | Interaction, role: string[]): boolean {
         if (this.client.util.config.owners.includes(member.user.id)) return true;
         if (member instanceof GuildMember) {
-            const __checkAllRoles: boolean[] = role.map((role) => member.roles.cache.some((r) => type === 'name' ? r.name === role : r.id === role));
+            const __checkAllRoles: boolean[] = role.map((role) => member.roles.cache.some((r) => (type === 'name' ? r.name === role : r.id === role)));
             const _containsRole: boolean = __checkAllRoles.some((role) => role === true);
             return _containsRole;
         } else {
             const m = member.member as GuildMember;
-            const __checkAllRoles: boolean[] = role.map((role) => m.roles.cache.some((r) => type === 'name' ? r.name === role : r.id === role));
+            const __checkAllRoles: boolean[] = role.map((role) => m.roles.cache.some((r) => (type === 'name' ? r.name === role : r.id === role)));
             const _containsRole: boolean = __checkAllRoles.some((role) => role === true);
             return _containsRole;
         }
     }
 
     public async buildCommands(type: 'global' | 'guild' | 'all_guild', cmd?: string): Promise<SlashCommandBuilder[]> {
-        const data = []
+        const data = [];
         for await (const directory of readdirSync(`${this.client.location}/src/interactions`, { withFileTypes: true })) {
             if (!directory.isDirectory()) continue;
             for await (const command of readdirSync(`${this.client.location}/src/interactions/${directory.name}`, { withFileTypes: true })) {
                 if (!command.isFile()) continue;
                 if (command.name.endsWith('.ts')) {
-                    const { default: Interaction } = await import(`${this.client.location}/src/interactions/${directory.name}/${command.name}`) as { default: new (client: Bot) => BotInteraction }
-                    const Command = new Interaction(this.client)
+                    const { default: Interaction } = (await import(`${this.client.location}/src/interactions/${directory.name}/${command.name}`)) as { default: new (client: Bot) => BotInteraction };
+                    const Command = new Interaction(this.client);
                     if (type === 'all_guild') {
-                        Command.enabled ? data.push(Command.slashData) : void 0
+                        Command.enabled ? data.push(Command.slashData) : void 0;
                     }
                     if (type === 'global') {
-                        Command.global && Command.enabled ? data.push(Command.slashData) : void 0
+                        Command.global && Command.enabled ? data.push(Command.slashData) : void 0;
                     }
                     if (type === 'guild' && !cmd) {
-                        !Command.global && Command.enabled ? data.push(Command.slashData) : void 0
+                        !Command.global && Command.enabled ? data.push(Command.slashData) : void 0;
                     }
                     if (cmd && command.name.toLowerCase().split('.ts')[0] === cmd) {
-                        data.push(Command.slashData)
+                        data.push(Command.slashData);
                     }
                 }
             }
@@ -282,7 +292,6 @@ export default class UtilityHandler {
         return data;
     }
 
-    
     public async checkGuidesForums(message: Message<true>): Promise<Message<true> | undefined> {
         let result = '';
         let _count = 0;
@@ -318,7 +327,7 @@ export default class UtilityHandler {
                                 spamStopped = true;
                                 continue;
                             }
-                            if (post.name.toLowerCase().includes(token.toLowerCase().trim()) || token.toLowerCase().trim() == "*") {
+                            if (post.name.toLowerCase().includes(token.toLowerCase().trim()) || token.toLowerCase().trim() == '*') {
                                 _count++;
                                 result += `<#${post.id}>\n`;
                                 // if(token != "*") { //can add this in if the wildcard gets truncated too much
@@ -377,11 +386,11 @@ export default class UtilityHandler {
     }
 
     public convertUserIDArrayToStringOfMentions(userIDs: string[] | undefined): string {
-        let result = "";
-        if(!userIDs) {
+        let result = '';
+        if (!userIDs) {
             return result;
         }
-        userIDs.forEach(userID => result += `<@${userID}> `);
+        userIDs.forEach((userID) => (result += `<@${userID}> `));
         return result;
     }
 }

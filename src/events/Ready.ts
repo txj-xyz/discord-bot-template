@@ -32,7 +32,7 @@ export default class Ready extends BotEvent {
 
         // Setup the TempVC channels
         try {
-            if (!this.client.configmap.check('TEMP_VOICE_CHANNELS_MODULE') && !this.client.production) return void 1;
+            if (!this.client.configmap.check('TEMP_VOICE_CHANNELS_MODULE') || !this.client.production) return void 1;
             this.client.util.tempvcmanager.registerChannelListener(
                 this.client.util.config.modules.tempVCHandler.channelID,
                 this.client.util.config.modules.tempVCHandler.categoryID

@@ -1,0 +1,19 @@
+{
+    "owners": [""],
+    "statuses": ["I am open source!"],
+    "client_id": "",
+    "webhookUrl": "",
+    "inviteURL": "",
+    "modules": {
+        "tempVCHandler": {
+            "categoryID": "",
+            "channelID": ""
+        },
+        "blacklistManager": {
+            "userBanResponse": "You are banned from using the bot.",
+            "channelBanResponse": "This channel is banned from using the bot.",
+            "guildBanResonse": "This guild is banned from using the bot.",
+            "uniBanResponse": "Uniban Detected, the bot is disabled."
+        }
+    }
+}

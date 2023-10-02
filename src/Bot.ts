@@ -6,7 +6,6 @@ import UtilityHandler from './modules/UtilityHandler';
 import BlacklistHandler from './handlers/BlacklistHandler';
 // import { webhookUrl } from '../config/config.json'
 import { ConfigMap } from './modules/ConfigMap';
-import { MessageScraper } from './modules/MessageScraper';
 
 export default interface Bot extends Client {
     
@@ -65,11 +64,6 @@ export default interface Bot extends Client {
      * Configuration map live updating to check if a feature is enabled
      */
     configmap: ConfigMap
-
-    /**
-     * Collection of all `MessageScraper` instances
-     */
-    scrapers: Collection<string, MessageScraper>;
 }
 
 /**
@@ -80,17 +74,14 @@ export default class Bot extends Client {
         super(options);
         this.configmap = new ConfigMap('./config/feature_toggle.json')
         this.webhooks = new Collection<string, WebhookClient>();
-        // this.webhooks.set('discord-logs', new WebhookClient({ url: webhookUrl }));
         this.production = process.env.DEV_MODE ? false : true;
         this.color = 0x7e686c;
         this.util = new UtilityHandler(this);
         this.quitting = false;
         this.location = process.cwd().replace(/\\/gim, "/");
-        console.log('LOOOOL', this.location)
         this.interactions = new InteractionHandler(this);
         this.events = new EventHandler(this);
         this.blacklist = new BlacklistHandler(this);
-        this.scrapers = new Collection<string, MessageScraper>();
         process.on('unhandledRejection', (err: unknown) => { return console.error({ message: `unhandledRejection from Process`, error: err }) });
         process.on('uncaughtException', (err: unknown) => { return console.error({ message: `uncaughtException from Process`, error: err }) });
     }

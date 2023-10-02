@@ -1,0 +1,8 @@
+[
+    {
+        "enabled": false,
+        "match_type": "exact",
+        "keywords": ["!testCommand"],
+        "reply": "https://google.com/"
+    }
+]

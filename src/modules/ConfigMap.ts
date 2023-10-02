@@ -5,13 +5,7 @@ import * as fs from 'fs';
  * Export a default configmap variable object
  */
 export const ConfigSchemaDefaults = {
-    "TAG_MANAGER": true,
-    "MEME_COMMANDS": false,
-    "LAST_DIED_TIME_TRACKER": true,
-    "JAGEX_PING_ALERT": false,
-    "AUTO_POST_SUGGESTION_EMBED": true,
-    "GUIDE_FORUM_CHANNEL_MESSAGE_SEARCH": true,
-    "AUTOMATED_CHANGELOGS": true
+    "TEST_KEY": true,
 }
 
 /**

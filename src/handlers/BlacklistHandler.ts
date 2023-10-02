@@ -97,7 +97,7 @@ export default class BlacklistHandler {
             channelId: string;
         }
     ): boolean {
-        const { uniBanResponse, guildBanResonse, userBanResponse, channelBanResponse } = this.client.util.config.blacklistManager
+        const { uniBanResponse, guildBanResonse, userBanResponse, channelBanResponse } = this.client.util.config.modules.blacklistManager
         if (!interaction.isRepliable()) return false
         if (this.isBlacklisted('guild', data.guildId)) {
             interaction.reply({ content: guildBanResonse, ephemeral: true }).catch(() => false)
